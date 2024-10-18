@@ -47,7 +47,7 @@ private fun Project.downloadAPK(apkLink: String) {
     }
     file.parentFile.mkdirs()
     val process = ProcessBuilder()
-        .command("pwd & ls -l -h & wget -O eden/Eden.apk $apkLink")
+        .command("wget -O eden/Eden.apk $apkLink".split(' '))
         .start()
     val reader = BufferedReader(InputStreamReader(process.inputStream))
     var line: String?
@@ -87,7 +87,7 @@ private fun Project.runEden(version: String) {
     val phone = File(rootDir, "master/android_phone/$version.json")
     val process = ProcessBuilder()
         .directory(File("eden"))
-        .command("dotnet Eden.CLI.dll --phone-override ../master/android_phone/$version.json --pad-override ../master/android_pad/$version.json")
+        .command("dotnet Eden.CLI.dll --phone-override ../master/android_phone/$version.json --pad-override ../master/android_pad/$version.json".split(' '))
         .start()
     val reader = BufferedReader(InputStreamReader(process.inputStream))
     var line: String?
