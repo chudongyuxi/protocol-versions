@@ -1,5 +1,4 @@
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -7,7 +6,6 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.net.URLConnection
 import java.util.zip.ZipInputStream
-
 
 fun URLConnection.applyHeaders() {
     setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36 Edg/129.0.0.0")
@@ -49,7 +47,6 @@ private fun Project.downloadAPK(apkLink: String) {
     }
     file.parentFile.mkdirs()
     val process = ProcessBuilder()
-        .directory(rootDir)
         .command("wget -O eden/Eden.apk $apkLink")
         .start()
     val reader = BufferedReader(InputStreamReader(process.inputStream))
@@ -89,8 +86,8 @@ private fun Project.runEden(version: String) {
     val pad = File(rootDir, "master/android_pad/$version.json")
     val phone = File(rootDir, "master/android_phone/$version.json")
     val process = ProcessBuilder()
-        .directory(File(rootDir, "eden"))
-        .command("dotnet Eden.CLI.dll --phone-override ${phone.absolutePath} --pad-override ${pad.absolutePath}")
+        .directory(File("eden"))
+        .command("dotnet Eden.CLI.dll --phone-override ../master/android_phone/$version.json --pad-override ../master/android_pad/$version.json")
         .start()
     val reader = BufferedReader(InputStreamReader(process.inputStream))
     var line: String?
