@@ -1,7 +1,7 @@
 # protocol-versions
-latest QQ protocol versions.
+latest QQ protocol versions (release).
 
-`android_phone` will not update anymore, `android_pad` update for [trpgbot](https://github.com/MrXiaoM/fpv/tree/trpgbot) plugin.
+Update for [trpgbot](https://github.com/MrXiaoM/fpv/tree/trpgbot) plugin. Check update everyday automatically.
 
 > [!WARNING]
 > 
