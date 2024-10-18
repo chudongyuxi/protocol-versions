@@ -48,11 +48,20 @@ private fun Project.downloadAPK(apkLink: String) {
         println("正在下载 APK")
     }
     file.parentFile.mkdirs()
-    val conn = URL(apkLink).openConnection()
-    conn.connectTimeout = 30 * 1000
-    conn.readTimeout = 30 * 1000
-    conn.applyHeaders()
-    conn.getInputStream().use { file.writeBytes(it.readBytes()) }
+    val process = ProcessBuilder()
+        .directory(rootDir)
+        .command("wget -O ${file.absolutePath} $apkLink")
+        .start()
+    val reader = BufferedReader(InputStreamReader(process.inputStream))
+    var line: String?
+    while ((reader.readLine().also { line = it }) != null) {
+        println("wget -- $line")
+    }
+    val exitCode: Int = process.waitFor()
+    println("wget 已退出，退出码 $exitCode")
+    if (!file.exists()) {
+        throw IllegalStateException("APK 下载失败")
+    }
 }
 private fun Project.downloadEden() {
     println("正在下载 Eden")
