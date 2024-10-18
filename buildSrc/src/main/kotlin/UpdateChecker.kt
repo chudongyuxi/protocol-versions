@@ -29,6 +29,6 @@ fun Project.checkUpdate() {
         println("仓库中已有该版本，无需更新")
         return
     }
-    File(rootDir, "download_apk.sh").writeText("wget -O eden/Eden.apk $apkLink")
+    File(rootDir, "download_apk.sh").writeText("wget --progress=dot:mega -O eden/Eden.apk $apkLink")
     File(rootDir, "apk_version").writeText(version)
 }
