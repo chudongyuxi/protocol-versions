@@ -29,14 +29,14 @@ jobs:
         with:
           arguments: checkUpdate
       - name: Check Result
-        runs: |
+        run: |
           ls eden
           ls master/android_pad
           echo "UPDATE_FLAG=$(expr cat commit_flag)" >> $GITHUB_ENV
           echo "UPDATE_LENGTH=$(expr length "$UPDATE_FLAG")" >> $GITHUB_ENV
       - name: Push commit
         if: ${{ env.UPDATE_LENGTH > 0 }}
-        runs: |
+        run: |
           cd master
           git add .
           git commit -m "Auto update ${{ env.UPDATE_FLAG }}"
