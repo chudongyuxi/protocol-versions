@@ -5,7 +5,9 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.net.URL
 import java.net.URLConnection
+import java.util.concurrent.Executors
 import java.util.zip.ZipInputStream
+
 
 fun URLConnection.applyHeaders() {
     setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36 Edg/129.0.0.0")
@@ -49,13 +51,21 @@ private fun Project.downloadAPK(apkLink: String) {
     val process = ProcessBuilder()
         .command("wget -O eden/Eden.apk $apkLink".split(' '))
         .start()
-    val reader = BufferedReader(InputStreamReader(process.inputStream))
-    var line: String?
-    while ((reader.readLine().also { line = it }) != null) {
-        println("wget -- $line")
+    val executor = Executors.newSingleThreadExecutor()
+    executor.execute {
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        var line: String?
+        try {
+            while ((reader.readLine().also { line = it }) != null) {
+                println("wget -- $line")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     val exitCode: Int = process.waitFor()
     println("wget 已退出，退出码 $exitCode")
+    executor.shutdown()
     if (!file.exists()) {
         throw IllegalStateException("APK 下载失败")
     }
@@ -89,13 +99,21 @@ private fun Project.runEden(version: String) {
         .directory(File("eden"))
         .command("dotnet Eden.CLI.dll --phone-override ../master/android_phone/$version.json --pad-override ../master/android_pad/$version.json".split(' '))
         .start()
-    val reader = BufferedReader(InputStreamReader(process.inputStream))
-    var line: String?
-    while ((reader.readLine().also { line = it }) != null) {
-        println("Eden -- $line")
+    val executor = Executors.newSingleThreadExecutor()
+    executor.execute {
+        val reader = BufferedReader(InputStreamReader(process.inputStream))
+        var line: String?
+        try {
+            while ((reader.readLine().also { line = it }) != null) {
+                println("Eden -- $line")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     val exitCode: Int = process.waitFor()
     println("Eden 已退出，退出码 $exitCode")
+    executor.shutdown()
     if (!pad.exists() || !phone.exists()) {
         throw IllegalStateException("更新失败，未生成协议信息文件")
     }
