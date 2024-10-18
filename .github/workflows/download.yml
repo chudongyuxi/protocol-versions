@@ -6,6 +6,7 @@ permissions:
   contents: write
 jobs:
   download:
+    name: Download ${{ vars.CUSTOM_VERSION }}
     permissions:
       contents: write
       packages: write
