@@ -50,7 +50,7 @@ private fun Project.downloadAPK(apkLink: String) {
     file.parentFile.mkdirs()
     val process = ProcessBuilder()
         .directory(rootDir)
-        .command("wget -O ${file.absolutePath} $apkLink")
+        .command("wget -O eden/Eden.apk $apkLink")
         .start()
     val reader = BufferedReader(InputStreamReader(process.inputStream))
     var line: String?
