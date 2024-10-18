@@ -4,8 +4,13 @@ on:
     - cron: "0 5 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
 jobs:
-  publish:
+  check:
+    permissions:
+      contents: write
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
