@@ -1,0 +1,80 @@
+name: Download Specific
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+jobs:
+  download:
+    permissions:
+      contents: write
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Paramaters
+        run: |
+          echo "VERSION_APK=$CUSTOM_VERSION" >> $GITHUB_ENV
+          echo "UPDATE_LENGTH=$(expr length "$CUSTOM_VERSION")" >> $GITHUB_ENV
+          if [ -z $CUSTOM_VERSION  ]; then
+            exit 1
+          fi
+        env:
+          CUSTOM_VERSION: ${{ vars.CUSTOM_VERSION }}
+      - name: Checkout master branch
+        uses: actions/checkout@v3
+        with:
+          ref: 'master'
+          path: 'master'
+          fetch-depth: 0
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+      - name: Run Protocol Update
+        if: ${{ env.UPDATE_LENGTH > 0 }}
+        run: |
+          mkdir eden
+          wget --progress=dot:mega -O eden/Eden.apk https://down.hwy.tcdnos.com/qqweb/QQ_1/android_apk/Android_${{ vars.CUSTOM_VERSION }}_64.apk
+          wget --progress=dot:mega -O eden.zip https://github.com/MrXiaoM/Eden/releases/download/1.0.6/Eden-1.0.6.zip
+          unzip -qoa eden.zip -d eden
+          cd eden
+          dotnet Eden.CLI.dll --phone-override ../master/android_phone/${{ env.VERSION_APK }}.json --pad-override ../master/android_pad/${{ env.VERSION_APK }}.json
+          cd ..
+      - name: Upload Artifacts
+        if: ${{ env.UPDATE_LENGTH > 0 }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: eden-project
+          path: |
+            eden/classes/
+            eden/decompile/
+            eden/out/
+          if-no-files-found: error
+      - name: Push commit to master branch
+        if: ${{ env.UPDATE_LENGTH > 0 }}
+        run: |
+          remote_addr=`git remote get-url --push origin`
+          user_name=`git log -1 --pretty=format:'%an'`
+          user_email=`git log -1 --pretty=format:'%ae'`
+          
+          cd master
+          
+          echo android_phone.json:
+          cat android_phone/${{ env.VERSION_APK }}.json
+          echo android_pad.json:
+          cat android_pad/${{ env.VERSION_APK }}.json
+          
+          git config user.name ${user_name}
+          git config user.email ${user_email}
+          git add .
+          git commit -m "🤖 auto upload \`${{ env.VERSION_APK }}\` by Actions"
+          remote_addr=`echo $remote_addr | awk -F'://' '{print $2}'`
+          remote_addr=https://${user_name}:${{secrets.GITHUB_TOKEN}}@${remote_addr}
+          git remote remove origin
+          git remote add origin ${remote_addr}
+          git push --set-upstream origin master
