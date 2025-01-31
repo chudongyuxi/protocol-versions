@@ -52,7 +52,7 @@ jobs:
           cd ..
       - name: Upload Artifacts
         if: ${{ env.UPDATE_LENGTH > 0 }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eden-project
           path: |
